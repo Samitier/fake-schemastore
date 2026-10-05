@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schmastore.example.com/feature-flags/1.1.0.json",
+  "title": "FeatureFlag",
+  "type": "object",
+  "required": ["key", "enabled"],
+  "properties": {
+    "key": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+    "description": { "type": "string" },
+    "enabled": { "type": "boolean" },
+    "rolloutPercentage": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100 },
+    "owners": { "type": "array", "items": { "type": "string", "format": "email" } },
+    "environments": {
+      "type": "object",
+      "propertyNames": { "enum": ["dev", "staging", "prod"] },
+      "additionalProperties": { "type": "boolean" }
+    },
+    "targeting": {
+      "type": "object",
+      "properties": {
+        "allowUserIds": { "type": "array", "items": { "type": "string" } },
+        "denyUserIds": { "type": "array", "items": { "type": "string" } },
+        "countries": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z]{2}$" } }
+      }
+    },
+    "expiresAt": { "type": "string", "format": "date-time" }
+  }
+}

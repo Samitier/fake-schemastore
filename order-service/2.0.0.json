@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schmastore.example.com/order-service/2.0.0.json",
+  "title": "Order",
+  "description": "Breaking: money is now an object, customer is embedded, status is a state machine record.",
+  "type": "object",
+  "required": ["id", "customer", "lines", "state", "createdAt"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "customer": {
+      "type": "object",
+      "required": ["id", "email"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "email": { "type": "string", "format": "email" },
+        "tier": { "enum": ["standard", "silver", "gold"] }
+      }
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/line" }
+    },
+    "state": {
+      "type": "object",
+      "required": ["current", "history"],
+      "properties": {
+        "current": { "enum": ["pending", "paid", "fulfilling", "shipped", "delivered", "cancelled", "refunded"] },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["state", "at"],
+            "properties": {
+              "state": { "type": "string" },
+              "at": { "type": "string", "format": "date-time" },
+              "reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "fulfilment": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["method", "address"],
+          "properties": {
+            "method": { "const": "delivery" },
+            "address": { "$ref": "#/$defs/address" },
+            "carrier": { "enum": ["ups", "fedex", "dhl", "usps"] },
+            "trackingNumber": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["method", "storeId"],
+          "properties": {
+            "method": { "const": "pickup" },
+            "storeId": { "type": "string" }
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "money": {
+      "type": "object",
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": { "type": "string", "pattern": "^-?\\d+(\\.\\d{1,4})?$" },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+      }
+    },
+    "line": {
+      "type": "object",
+      "required": ["sku", "quantity", "unitPrice"],
+      "properties": {
+        "sku": { "type": "string", "pattern": "^[A-Z]{3}-\\d{4}$" },
+        "quantity": { "type": "integer", "minimum": 1 },
+        "unitPrice": { "$ref": "#/$defs/money" },
+        "discounts": { "type": "array", "items": { "$ref": "#/$defs/money" } }
+      }
+    },
+    "address": {
+      "type": "object",
+      "required": ["street", "city", "country"],
+      "properties": {
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "region": { "type": "string" },
+        "postalCode": { "type": "string" },
+        "country": { "type": "string", "pattern": "^[A-Z]{2}$" }
+      }
+    }
+  }
+}

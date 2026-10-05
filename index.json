@@ -1,0 +1,10 @@
+{
+  "name": "fake-schemastore",
+  "schemas": {
+    "order-service": ["1.0.0", "1.1.0", "2.0.0"],
+    "user-profile": ["1.0.0", "1.1.0", "2.0.0"],
+    "iot-telemetry": ["1.0.0", "1.1.0", "2.0.0"],
+    "ci-pipeline": ["1.0.0", "1.1.0", "2.0.0"],
+    "feature-flags": ["1.0.0", "1.1.0", "2.0.0"]
+  }
+}

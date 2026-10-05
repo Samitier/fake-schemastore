@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schmastore.example.com/order-service/1.1.0.json",
+  "title": "Order",
+  "description": "An e-commerce order. Adds currency, discounts and tracking.",
+  "type": "object",
+  "required": ["orderId", "customerId", "items", "status", "createdAt", "currency"],
+  "additionalProperties": false,
+  "properties": {
+    "orderId": { "type": "string", "format": "uuid" },
+    "customerId": { "type": "string", "format": "uuid" },
+    "status": { "type": "string", "enum": ["pending", "paid", "shipped", "delivered", "cancelled", "refunded"] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "currency": { "type": "string", "enum": ["USD", "EUR", "GBP", "JPY"], "default": "USD" },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/lineItem" }
+    },
+    "discounts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "amount"],
+        "properties": {
+          "code": { "type": "string" },
+          "amount": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "shippingAddress": { "$ref": "#/definitions/address" },
+    "tracking": {
+      "type": "object",
+      "properties": {
+        "carrier": { "type": "string", "enum": ["ups", "fedex", "dhl", "usps"] },
+        "trackingNumber": { "type": "string" }
+      },
+      "required": ["carrier", "trackingNumber"]
+    },
+    "total": { "type": "number", "minimum": 0 }
+  },
+  "definitions": {
+    "lineItem": {
+      "type": "object",
+      "required": ["sku", "quantity", "unitPrice"],
+      "properties": {
+        "sku": { "type": "string", "pattern": "^[A-Z]{3}-\\d{4}$" },
+        "quantity": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "unitPrice": { "type": "number", "minimum": 0 },
+        "giftWrap": { "type": "boolean", "default": false }
+      }
+    },
+    "address": {
+      "type": "object",
+      "required": ["street", "city", "country"],
+      "properties": {
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "region": { "type": "string" },
+        "postalCode": { "type": "string" },
+        "country": { "type": "string", "minLength": 2, "maxLength": 2 }
+      }
+    }
+  }
+}

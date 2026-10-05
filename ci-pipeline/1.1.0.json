@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schmastore.example.com/ci-pipeline/1.1.0.json",
+  "title": "PipelineConfig",
+  "type": "object",
+  "required": ["name", "stages"],
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string" },
+    "trigger": {
+      "type": "object",
+      "properties": {
+        "branches": { "type": "array", "items": { "type": "string" } },
+        "tags": { "type": "boolean", "default": false },
+        "schedule": { "type": "string", "description": "Cron expression" }
+      }
+    },
+    "env": { "type": "object", "additionalProperties": { "type": "string" } },
+    "cache": {
+      "type": "object",
+      "properties": {
+        "key": { "type": "string" },
+        "paths": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      },
+      "required": ["key", "paths"]
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "steps"],
+        "properties": {
+          "name": { "type": "string" },
+          "dependsOn": { "type": "array", "items": { "type": "string" } },
+          "matrix": {
+            "type": "object",
+            "additionalProperties": { "type": "array", "items": { "type": ["string", "number"] }, "minItems": 1 }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["run"],
+              "properties": {
+                "name": { "type": "string" },
+                "run": { "type": "string" },
+                "if": { "type": "string" },
+                "continueOnError": { "type": "boolean", "default": false },
+                "timeoutMinutes": { "type": "integer", "minimum": 1, "default": 30 }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

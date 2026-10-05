@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schmastore.example.com/feature-flags/2.0.0.json",
+  "title": "FeatureFlag",
+  "description": "Breaking: boolean flags replaced by typed variations with rule-based targeting.",
+  "type": "object",
+  "required": ["key", "kind", "variations", "defaultVariation"],
+  "properties": {
+    "key": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]*$" },
+    "kind": { "enum": ["boolean", "string", "number", "json"] },
+    "description": { "type": "string" },
+    "temporary": { "type": "boolean", "default": true },
+    "variations": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "value"],
+        "properties": { "id": { "type": "string" }, "value": {}, "name": { "type": "string" } }
+      }
+    },
+    "defaultVariation": { "type": "string" },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["clauses", "serve"],
+        "properties": {
+          "clauses": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["attribute", "op", "values"],
+              "properties": {
+                "attribute": { "type": "string" },
+                "op": { "enum": ["in", "startsWith", "endsWith", "matches", "lt", "gt", "semVerGte"] },
+                "values": { "type": "array", "minItems": 1 },
+                "negate": { "type": "boolean", "default": false }
+              }
+            }
+          },
+          "serve": {
+            "oneOf": [
+              { "type": "object", "required": ["variation"], "properties": { "variation": { "type": "string" } } },
+              {
+                "type": "object",
+                "required": ["rollout"],
+                "properties": {
+                  "rollout": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["variation", "weight"],
+                      "properties": { "variation": { "type": "string" }, "weight": { "type": "integer", "minimum": 0, "maximum": 100000 } }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["flag", "variation"],
+        "properties": { "flag": { "type": "string" }, "variation": { "type": "string" } }
+      }
+    }
+  }
+}

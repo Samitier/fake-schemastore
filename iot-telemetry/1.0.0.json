@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schmastore.example.com/iot-telemetry/1.0.0.json",
+  "title": "TelemetryReading",
+  "type": "object",
+  "required": ["deviceId", "timestamp", "readings"],
+  "properties": {
+    "deviceId": { "type": "string", "pattern": "^dev-[0-9a-f]{8}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "firmware": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "readings": {
+      "type": "object",
+      "properties": {
+        "temperatureC": { "type": "number", "minimum": -90, "maximum": 150 },
+        "humidityPct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "pressureHpa": { "type": "number", "minimum": 300, "maximum": 1100 }
+      },
+      "minProperties": 1
+    },
+    "batteryPct": { "type": "integer", "minimum": 0, "maximum": 100 }
+  }
+}
